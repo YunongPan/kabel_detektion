@@ -1,15 +1,25 @@
 #!/usr/bin/env python
 import cv2  
 import numpy as np 
-import matplotlib.pyplot as plt
 
-cap = cv2.VideoCapture('VID_20210507_091819.mp4')
+
+cap = cv2.VideoCapture('VID_20210507_093251.mp4')
+
+
+width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+out = cv2.VideoWriter('2.mp4', fourcc, 20, (width, height))
 
 while(1):
-    _, frame = cap.read()
+    ret, frame = cap.read()
+
+
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     lower_red = np.array([0, 100, 0])
-    upper_red = np.array([10, 255, 255])
+    upper_red = np.array([20, 255, 255])
     mask = cv2.inRange(hsv, lower_red, upper_red)
     img_Gaussian_mask = cv2.GaussianBlur(mask, (13, 13), 0)
 
@@ -23,17 +33,16 @@ while(1):
     res_2 = cv2.bitwise_and(frame,frame, mask = thresh)
     res_2_Gaussian = cv2.GaussianBlur(res_2, (5, 5), 0)
 
-    cv2.namedWindow('image', cv2.WINDOW_NORMAL)
-    cv2.resizeWindow('image', 1000, 1000)
-    cv2.imshow('image', res_2_Gaussian)
-    
-    k = cv2.waitKey(5) & 0xFF
-    if k == 27:
+    out.write(res_2_Gaussian)
+    # show a frame
+    cv2.imshow("capture", res_2_Gaussian)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-cv2.destroyAllWindows()
-cap.release()
 
+cap.release()
+out.release()
+cv2.destroyAllWindows() 
 
 
 
